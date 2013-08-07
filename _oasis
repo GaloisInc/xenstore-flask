@@ -16,9 +16,9 @@ Library xs_flask
   InternalModules:  Policy_gen
   BuildDepends:     str
 
-Executable path_db_test
-  CompiledObject:   native
-  Path:             tests
-  MainIs:           path_db_test.ml
-  Install:          false
-  BuildDepends:     xs_flask
+#Executable path_db_test
+#  CompiledObject:   native
+#  Path:             tests
+#  MainIs:           path_db_test.ml
+#  Install:          false
+#  BuildDepends:     xs_flask

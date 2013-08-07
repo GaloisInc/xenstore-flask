@@ -32,6 +32,8 @@ type node = {
   node_metric : int;
 }
 
+type t = node
+
 (* The empty node. *)
 let empty = {
   node_name = "";
