@@ -1,0 +1,24 @@
+OASISFormat: 0.3
+Name:        xenstore-flask
+Version:     0.1
+Synopsis:    Flask security module for Xenstore
+Authors:     Galois, Inc.
+License:     PROP
+Plugins:     META (0.3)
+BuildTools:  ocamlbuild
+
+Library xs_flask
+  CompiledObject:   native
+  Path:             src
+  Pack:             true
+  BuildTools:       ocamlbuild
+  Modules:          Types, Path_db, Security, Policy
+  InternalModules:  Policy_gen
+  BuildDepends:     str
+
+Executable path_db_test
+  CompiledObject:   native
+  Path:             tests
+  MainIs:           path_db_test.ml
+  Install:          false
+  BuildDepends:     xs_flask

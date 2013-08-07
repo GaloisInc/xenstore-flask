@@ -1,0 +1,29 @@
+# OASIS_START
+# DO NOT EDIT (digest: f718a60f3b6f5f465ef954e90e44a408)
+# Ignore VCS directories, you can use the same kind of rule outside 
+# OASIS_START/STOP if you want to exclude directories that contains 
+# useless stuff for the build process
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
+# Library xs_flask
+"src/xs_flask.cmxs": use_xs_flask
+"src/types.cmx": for-pack(Xs_flask)
+"src/path_db.cmx": for-pack(Xs_flask)
+"src/security.cmx": for-pack(Xs_flask)
+"src/policy.cmx": for-pack(Xs_flask)
+"src/policy_gen.cmx": for-pack(Xs_flask)
+<src/*.ml{,i}>: pkg_str
+# Executable path_db_test
+"tests/path_db_test.native": use_xs_flask
+"tests/path_db_test.native": pkg_str
+<tests/*.ml{,i}>: use_xs_flask
+<tests/*.ml{,i}>: pkg_str
+# OASIS_STOP
