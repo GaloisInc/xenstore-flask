@@ -446,6 +446,7 @@ module InitialSID = struct
   let ioport = 7l
   let device = 10l
   let xenstore = 11l
+  let xenstore_unlabeled = 12l
 
   let to_string = [
     (1l, "system_u:system_r:xen_t");
@@ -459,6 +460,7 @@ module InitialSID = struct
     (7l, "system_u:object_r:ioport_t");
     (10l, "system_u:object_r:device_t");
     (11l, "system_u:object_r:xs_root_t");
+    (12l, "system_u:object_r:xs_unlabeled_t");
   ]
 end
 
