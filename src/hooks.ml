@@ -11,6 +11,10 @@ open Policy
 
 module Sec = Security.AVC(OS.Flask)(Policy)
 
+type domid = int
+type path = string
+type context = string
+
 (** Node Labelling *)
 
 (* Return the last element of a list. *)
