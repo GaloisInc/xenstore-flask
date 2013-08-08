@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6f410d1f7b06142745a73f5a1ddc97bc)
+# DO NOT EDIT (digest: a0f3bf907cc3f4048ad0aab039442fec)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -22,6 +22,6 @@
 "src/hooks.cmx": for-pack(Xs_flask)
 "src/policy_gen.cmx": for-pack(Xs_flask)
 <src/*.ml{,i}>: pkg_str
-<src/*.ml{,i}>: pkg_xenstore
+<src/*.ml{,i}>: pkg_xenstore.server
 <src/*.ml{,i}>: pkg_mirage
 # OASIS_STOP

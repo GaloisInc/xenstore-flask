@@ -8,16 +8,16 @@ Plugins:     META (0.3)
 BuildTools:  ocamlbuild
 
 Library xs_flask
-  CompiledObject:   native
+  CompiledObject:   best
   Path:             src
   Pack:             true
   BuildTools:       ocamlbuild
   Modules:          Types, Path_db, Security, Policy, Hooks
   InternalModules:  Policy_gen
-  BuildDepends:     str, xenstore, mirage
+  BuildDepends:     str, xenstore.server, mirage
 
 #Executable path_db_test
-#  CompiledObject:   native
+#  CompiledObject:   best
 #  Path:             tests
 #  MainIs:           path_db_test.ml
 #  Install:          false
