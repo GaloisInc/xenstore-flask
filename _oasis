@@ -12,9 +12,9 @@ Library xs_flask
   Path:             src
   Pack:             true
   BuildTools:       ocamlbuild
-  Modules:          Types, Path_db, Security, Policy
+  Modules:          Types, Path_db, Security, Policy, Hooks
   InternalModules:  Policy_gen
-  BuildDepends:     str
+  BuildDepends:     str, xenstore, mirage
 
 #Executable path_db_test
 #  CompiledObject:   native

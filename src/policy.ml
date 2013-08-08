@@ -7,8 +7,12 @@
  * Written by James Bielman <jamesjb@galois.com>, 26 July 2013
  *)
 
-type audit_data
+open Printf
 
-let audit_data_to_string () = "unknown"
+type audit_data = (string * string) list
+
+let audit_data_to_string d =
+  let go s (k, v) = s ^ sprintf " %s=%s" k v in
+  String.trim (List.fold_left go "" d)
 
 include Policy_gen
