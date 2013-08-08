@@ -7,7 +7,7 @@
  * Written by James Bielman <jamesjb@galois.com>, 26 July 2013
  *)
 
-type audit_data = unit
+type audit_data
 
 let audit_data_to_string () = "unknown"
 
