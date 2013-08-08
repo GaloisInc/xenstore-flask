@@ -10,9 +10,8 @@
 open Printf
 open Types
 
-module AVC (Server : SecurityServer) (Objects : SecurityObjects) = struct
+module AVC (Server : SecurityServer) = struct
   include Server
-  include Objects
 
   type audit_handler = string -> unit
 
@@ -48,7 +47,7 @@ module AVC (Server : SecurityServer) (Objects : SecurityObjects) = struct
 
   let lookup_class oclass =
     try
-      List.assoc oclass Class.class_to_string
+      List.assoc oclass Policy.Class.class_to_string
     with Not_found ->
       sprintf "0x%lx" oclass
 
@@ -60,7 +59,7 @@ module AVC (Server : SecurityServer) (Objects : SecurityObjects) = struct
 
   let lookup_av oclass av =
     try
-      let perms = List.assoc oclass Perm.perm_to_string in
+      let perms = List.assoc oclass Policy.Perm.perm_to_string in
       let (av_rest, name) = List.fold_left lookup_av1 (av, "") perms in
       if av_rest <> 0l then
         "{" ^ name ^ sprintf " 0x%lx" av_rest ^ " }"
@@ -103,7 +102,7 @@ module AVC (Server : SecurityServer) (Objects : SecurityObjects) = struct
       let msg = sprintf "avc: %s %s for %s %s"
                         (if denied <> 0l then "denied" else "granted")
                         (lookup_av av_req.tclass audited)
-                        (audit_data_to_string ad)
+                        (Policy.audit_data_to_string ad)
                         (dump_query av_req.ssid av_req.tsid av_req.tclass) in
       itf.logger msg
     end

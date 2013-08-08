@@ -9,7 +9,7 @@
 
 open Policy
 
-module Sec = Security.AVC(OS.Flask)(Policy)
+module Sec = Security.AVC(OS.Flask)
 
 type domid = int
 type path = string

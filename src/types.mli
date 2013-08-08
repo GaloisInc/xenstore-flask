@@ -92,12 +92,6 @@ end
  * These modules will usually be generated automatically from
  * the policy definition. *)
 module type SecurityObjects = sig
-  type audit_data
-  (** Opaque type for audit data attached with permission requests. *)
-
-  val audit_data_to_string : audit_data -> string
-  (** Convert audit data to a string for logging. *)
-
   module Class : sig
     val class_to_string : (int32 * string) list
   end
