@@ -15,6 +15,35 @@ type domid = int
 type path = string
 type context = string
 
+(** Default Path Database *)
+
+(* This is hard-coded here for now.  Eventually it will probably become
+ * a loadable module along with the Xenstore policy.
+ *
+ * The labels defined here must be defined in the Xen policy, or the
+ * nodes will end up labeled incorrectly. *)
+let ctx ty = Path_db.Value_str ("system_u:object_r:" ^ ty)
+let dom    = Path_db.Value_domid
+
+let default_path_db = Path_db.build_db
+  (* local domain tree *)
+  [ ("/local/domain",                             ctx "xs_local_domain_path_t")
+  ; ("/local/domain/*",                           dom)
+  (* device backends *)
+  ; ("/local/domain/*/backend/vbd",               ctx "xs_disk_backend_path_t")
+  ; ("/local/domain/*/backend/vbd/*",             dom)
+  ; ("/local/domain/*/backend/vtpm",              ctx "xs_vtpm_backend_path_t")
+  ; ("/local/domain/*/backend/vtpm/*",            dom)
+  ; ("/local/domain/*/backend/*",                 ctx "xs_generic_backend_path_t")
+  ; ("/local/domain/*/backend/*/*",               dom)
+  (* device frontends *)
+  ; ("/local/domain/*/device/vbd",                ctx "xs_disk_frontend_path_t")
+  ; ("/local/domain/*/device/vtpm",               ctx "xs_vtpm_frontend_path_t")
+  (* xenstore tool *)
+  ; ("/tool/xenstored",                           ctx "xs_tool_xenstore_path_t")
+  ; ("/tool/xenstored/connection/domain/*",       dom)
+  ]
+
 (** Node Labelling *)
 
 (* Return the last element of a list. *)
@@ -34,8 +63,8 @@ let safe_context_to_sid label =
 
 (* Label a newly created node based on the path database
  * and label of the (already existing) parent node. *)
-let new_node_label path_db path parent_label =
-  let results = Path_db.query path path_db in
+let new_node_label path parent_label =
+  let results = Path_db.query path default_path_db in
   match results with
   (* Not in path database, use parent's security label. *)
   | [] -> parent_label
