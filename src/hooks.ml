@@ -59,31 +59,98 @@ let new_node_label path_db path parent_label =
         let sid3  = Sec.create sid1 sid2 Policy.Class.xenstore in
         Sec.sid_to_context sid3)
 
-(** Node Accesses *)
-
 (* Open a connection at startup.  This is currently a no-op, but if it
  * needs to actually do something, it might need to run at a different
  * time. *)
 let itf = Sec.interface_open ()
 
-(* Create audit data for a node access. *)
-let node_access_audit_data domid path =
-  [("domid", string_of_int domid); ("path",  path)]
-
-(* Check access from a client domain against a Xenstore node. *)
-let node_access dom_id node_path node_label av =
-  let ad = node_access_audit_data dom_id node_path in
-  let dom_sid = OS.Flask.getdomainsid dom_id in
-  let node_sid = safe_context_to_sid node_label in
-  if not (Sec.has_perm itf dom_sid node_sid Class.xenstore av ad)
+(* Perform an access check, raising an exception if it fails. *)
+let do_check ssid tsid av ad =
+  if not (Sec.has_perm itf ssid tsid Class.xenstore av ad)
     then raise Xenstore_server.Perms.Permission_denied
     else ()
 
-(* Read a node, its permissions, security label, or list its children. *)
-let flask_read dom_id node_path node_label =
-  node_access dom_id node_path node_label Perm.xenstore__read
+(** Node Accesses *)
 
-(* Write to a node or create child nodes. *)
+(* Create audit data for a node access. *)
+let node_access_audit_data domid path extra =
+  [("domid", string_of_int domid); ("path",  path)] @ extra
+
+(* Check access from a client domain against a Xenstore node. *)
+let node_access dom_id node_path node_label av ad_extra =
+  let ad = node_access_audit_data dom_id node_path ad_extra in
+  let dom_sid = OS.Flask.getdomainsid dom_id in
+  let node_sid = safe_context_to_sid node_label in
+  do_check dom_sid node_sid av ad
+
+let flask_read dom_id node_path node_label =
+  node_access dom_id node_path node_label Perm.xenstore__read []
+
 let flask_write dom_id node_path node_label =
-  node_access dom_id node_path node_label Perm.xenstore__write
+  node_access dom_id node_path node_label Perm.xenstore__write []
+
+let flask_create dom_id node_path node_label =
+  node_access dom_id node_path node_label Perm.xenstore__create []
+
+let flask_delete dom_id node_path node_label =
+  node_access dom_id node_path node_label Perm.xenstore__delete []
+
+let flask_chmod dom_id node_path node_label dac_perms =
+  node_access dom_id node_path node_label Perm.xenstore__chmod
+              [("dac_perms", dac_perms)]
+
+let flask_relabelfrom dom_id node_path node_label =
+  node_access dom_id node_path node_label Perm.xenstore__relabelfrom []
+
+let flask_relabelto dom_id node_path node_label =
+  node_access dom_id node_path node_label Perm.xenstore__relabelto []
+
+let flask_override dom_id node_path node_label =
+  node_access dom_id node_path node_label Perm.xenstore__override []
+
+(** Node-Node Operations *)
+
+let flask_bind dom_id parent_path parent_label child_path child_label =
+  let ad = [ ("domid", string_of_int dom_id)
+           ; ("parent", parent_path); ("child", child_path) ] in
+  let parent_sid = safe_context_to_sid parent_label in
+  let child_sid  = safe_context_to_sid child_label in
+  do_check parent_sid child_sid Perm.xenstore__bind ad
+
+let flask_transition dom_id path old_label new_label =
+  let ad = [ ("domid", string_of_int dom_id); ("path", path)
+           ; ("old_label", old_label); ("new_label", new_label) ] in
+  let old_sid = safe_context_to_sid old_label in
+  let new_sid = safe_context_to_sid new_label in
+  do_check old_sid new_sid Perm.xenstore__transition ad
+
+(** Domain Accesses *)
+
+let domid_access sdomid tdomid av =
+  let ad = [ ("sdomid", string_of_int sdomid)
+           ; ("tdomid", string_of_int tdomid)] in
+  let ssid = OS.Flask.getdomainsid sdomid in
+  let tsid = OS.Flask.getdomainsid tdomid in
+  do_check ssid tsid av ad
+
+let flask_introduce sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__introduce
+
+let flask_stat sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__stat
+
+let flask_release sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__release
+
+let flask_resume sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__resume
+
+let flask_chown_from sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__chown_from
+
+let flask_chown_to sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__chown_to
+
+let flask_chown_transition sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__chown_transition
 
