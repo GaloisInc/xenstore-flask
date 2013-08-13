@@ -53,8 +53,16 @@ let rec last xs =
   | x :: [] -> x
   | x :: xs -> last xs
 
-(* Wrapper around "context_to_sid" that returns the predefined
+(* Wrapper around "getdomainsid" that returns the predefined
  * unlabeled SID if an error occurs. *)
+let safe_getdomainsid domid =
+  try
+    OS.Flask.getdomainsid domid
+  with Failure _ ->
+    Policy.InitialSID.unlabeled
+
+(* Wrapper around "context_to_sid" that returns the predefined
+ * Xenstore unlabeled SID if an error occurs. *)
 let safe_context_to_sid label =
   try
     Sec.context_to_sid label
@@ -83,7 +91,7 @@ let new_node_label path parent_label =
       (* transition(getdomainsid(last(wilds)), parent_label) -> new_label *)
       | Path_db.Value_domid ->
         let domid = int_of_string (last (Path_db.(r.result_wilds))) in
-        let sid1  = OS.Flask.getdomainsid domid in
+        let sid1  = safe_getdomainsid domid in
         let sid2  = safe_context_to_sid parent_label in
         let sid3  = Sec.create sid1 sid2 Policy.Class.xenstore in
         Sec.sid_to_context sid3)
@@ -108,7 +116,7 @@ let node_access_audit_data domid path extra =
 (* Check access from a client domain against a Xenstore node. *)
 let node_access dom_id node_path node_label av ad_extra =
   let ad = node_access_audit_data dom_id node_path ad_extra in
-  let dom_sid = OS.Flask.getdomainsid dom_id in
+  let dom_sid = safe_getdomainsid dom_id in
   let node_sid = safe_context_to_sid node_label in
   do_check dom_sid node_sid av ad
 
@@ -158,8 +166,8 @@ let flask_transition dom_id path old_label new_label =
 let domid_access sdomid tdomid av =
   let ad = [ ("sdomid", string_of_int sdomid)
            ; ("tdomid", string_of_int tdomid)] in
-  let ssid = OS.Flask.getdomainsid sdomid in
-  let tsid = OS.Flask.getdomainsid tdomid in
+  let ssid = safe_getdomainsid sdomid in
+  let tsid = safe_getdomainsid tdomid in
   do_check ssid tsid av ad
 
 let flask_introduce sdomid tdomid =
