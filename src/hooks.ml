@@ -107,6 +107,12 @@ let do_check ssid tsid av ad =
     then raise Xenstore_server.Perms.Permission_denied
     else ()
 
+let flask_getenforce () =
+  Sec.getenforce itf
+
+let flask_setenforce x =
+  Sec.setenforce itf x
+
 (** Node Accesses *)
 
 (* Create audit data for a node access. *)

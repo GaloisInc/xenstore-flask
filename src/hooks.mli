@@ -18,6 +18,14 @@ type path = string
 type context = string
 (** A security context string. *)
 
+(** {2 Permissive / Enforcing Modes} *)
+
+val flask_getenforce : unit -> bool
+(** Return true if xenstore is in enforcing mode. *)
+
+val flask_setenforce : bool -> unit
+(** Set enforcing (true) or permissive (flask) mode. *)
+
 (** {2 Node Labelling} *)
 
 val new_node_label : path -> context -> context
