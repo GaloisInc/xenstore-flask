@@ -39,6 +39,8 @@ let default_path_db = Path_db.build_db
   (* device frontends *)
   ; ("/local/domain/*/device/vbd",                ctx "xs_vbd_frontend_path_t")
   ; ("/local/domain/*/device/vtpm",               ctx "xs_vtpm_frontend_path_t")
+  (* console *)
+  ; ("/local/domain/*/console",                   ctx "xs_console_path_t")
   (* xenstore tool *)
   ; ("/tool/xenstored",                           ctx "xs_tool_xenstore_path_t")
   ; ("/tool/xenstored/connection/domain/*",       dom)
