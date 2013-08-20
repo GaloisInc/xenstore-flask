@@ -98,7 +98,10 @@ val flask_chown_to : domid -> domid -> unit
 val flask_chown_transition : domid -> domid -> unit
 (** Allow a node to change ownership. *)
 
-(* flask_retain_owner *)
+val flask_retain_owner : domid -> domid -> bool
+(** Return true if the DAC ownership of the parent should be inherited
+    when creating a new node. *)
+
 (* flask_make_priv_for *)
 (* flask_set_as_target *)
 (* flask_set_target *)

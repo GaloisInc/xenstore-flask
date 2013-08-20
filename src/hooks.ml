@@ -199,3 +199,10 @@ let flask_chown_to sdomid tdomid =
 let flask_chown_transition sdomid tdomid =
   domid_access sdomid tdomid Perm.xenstore__chown_transition
 
+(* does not raise Permission_denied on failure *)
+let flask_retain_owner sdomid tdomid =
+  let ad = [ ("sdomid", string_of_int sdomid)
+           ; ("tdomid", string_of_int tdomid)] in
+  let ssid = safe_getdomainsid sdomid in
+  let tsid = safe_getdomainsid tdomid in
+  Sec.has_perm itf ssid tsid Class.xenstore Perm.xenstore__retain_owner ad
