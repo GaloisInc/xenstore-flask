@@ -10,6 +10,7 @@ BuildTools:  ocamlbuild
 Library xs_flask
   CompiledObject:   best
   Path:             src
+  Findlibname:      xs_flask
   Pack:             true
   BuildTools:       ocamlbuild
   Modules:          Types, Path_db, Security, Policy, Hooks
