@@ -102,7 +102,11 @@ val flask_retain_owner : domid -> domid -> bool
 (** Return true if the DAC ownership of the parent should be inherited
     when creating a new node. *)
 
-(* flask_make_priv_for *)
-(* flask_set_as_target *)
-(* flask_set_target *)
+val flask_make_priv_for: domid -> domid -> unit
+(** Set target, where device model is the target domain. *)
 
+val flask_set_as_target: domid -> domid -> unit
+(** Set target, where the target domain is the target domain. *)
+
+val flask_set_target: domid -> domid -> unit
+(** Allow a domain to be a target for another domain. *)

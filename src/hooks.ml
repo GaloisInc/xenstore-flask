@@ -206,3 +206,13 @@ let flask_retain_owner sdomid tdomid =
   let ssid = safe_getdomainsid sdomid in
   let tsid = safe_getdomainsid tdomid in
   Sec.has_perm itf ssid tsid Class.xenstore Perm.xenstore__retain_owner ad
+
+let flask_make_priv_for sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__make_priv_for
+
+let flask_set_as_target sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__set_as_target
+
+let flask_set_target sdomid tdomid =
+  domid_access sdomid tdomid Perm.xenstore__set_target
+
