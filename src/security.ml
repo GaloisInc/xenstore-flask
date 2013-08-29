@@ -20,6 +20,55 @@ module AVC (Server : SecurityServer) = struct
     mutable enforcing : bool;
   }
 
+  (* Local cache of access checks *)
+  let avc_cache_threshold = 512
+  let avc_cache_reclaim = 16
+
+  type avc_node = {
+    resp : Server.av_decision;
+    lru_hint : bool;
+  }
+
+  let avc_cache = Hashtbl.create avc_cache_threshold
+
+  let avc_reclaim_node avc_cache =
+    let del = ref false in
+    let num = ref 0 in
+    let reclaim avc_req node =
+      if !del
+      then begin
+        Hashtbl.remove avc_cache avc_req;
+        incr num;
+        if !num >= avc_cache_reclaim then raise Exit
+      end;
+      if node.lru_hint then del := true
+    in
+    Hashtbl.iter reclaim avc_cache;
+    if !num < avc_cache_reclaim then Hashtbl.iter reclaim avc_cache
+
+  let avc_add_node avc_cache av_req av_resp reclaimed =
+    let node = { resp = av_resp; lru_hint = reclaimed; } in
+    Hashtbl.replace avc_cache av_req node;
+    av_resp
+
+  let avc_search_node av_req =
+    if Hashtbl.mem avc_cache av_req
+    then Some ((Hashtbl.find avc_cache av_req).resp)
+    else None
+
+  let avc_lookup av_req =
+    let node = avc_search_node av_req in
+    match node with
+    | Some (av_resp) -> av_resp
+    | None ->
+        let av_resp = access av_req in
+        let reclaim =
+          if Hashtbl.length avc_cache >= avc_cache_threshold
+          then (avc_reclaim_node avc_cache; true)
+          else (Hashtbl.length avc_cache) = 0
+        in
+        avc_add_node avc_cache av_req av_resp reclaim
+
   (* temporary default logger *)
   let default_logger = Printf.printf "%s\n%!"
 
@@ -40,7 +89,7 @@ module AVC (Server : SecurityServer) = struct
 
   (* like "avc_has_perm_noaudit" *)
   let has_perm_noaudit itf av_req =
-    let av_resp = access av_req in
+    let av_resp = avc_lookup av_req in
     let denied = Int32.logand av_req.req (Int32.lognot av_resp.allowed) in
     let allowed = if denied = 0l then true else not itf.enforcing in
     (allowed, av_resp)
