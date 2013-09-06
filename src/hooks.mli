@@ -28,7 +28,7 @@ val flask_setenforce : bool -> unit
 
 (** {2 Node Labelling} *)
 
-val new_node_label : path -> context -> context
+val new_node_label : Path_db.t -> path -> context -> context
 (** [new_node_label path parent_context]
 
     Label a newly created node based on the path database
