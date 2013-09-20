@@ -31,6 +31,9 @@ module AVC (Server : SecurityServer) = struct
 
   let avc_cache = Hashtbl.create avc_cache_threshold
 
+  let avc_clear_cache () =
+    Hashtbl.reset avc_cache
+
   let avc_reclaim_node avc_cache =
     let del = ref false in
     let num = ref 0 in

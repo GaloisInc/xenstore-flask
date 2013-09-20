@@ -27,6 +27,9 @@ module AVC : functor (Server : SecurityServer) -> sig
   val interface_close : interface -> unit
   (** Close a connection to the AVC. *)
 
+  val avc_clear_cache : unit -> unit
+  (** Clear current AVC cache. *)
+
   type audit_handler = string -> unit
   (** Function type for the audit log handler. *)
 

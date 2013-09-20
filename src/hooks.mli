@@ -18,6 +18,9 @@ type path = string
 type context = string
 (** A security context string. *)
 
+val flask_clear_avc_cache : unit -> unit
+(** Clear the avc cache. *)
+
 (** {2 Permissive / Enforcing Modes} *)
 
 val flask_getenforce : unit -> bool

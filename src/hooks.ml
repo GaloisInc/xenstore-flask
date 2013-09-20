@@ -15,6 +15,9 @@ type domid = int
 type path = string
 type context = string
 
+let flask_clear_avc_cache () =
+  Sec.avc_clear_cache ()
+
 (** Default Path Database *)
 
 (* This is hard-coded here for now.  Eventually it will probably become
