@@ -198,3 +198,42 @@ let flask_set_as_target sdomid tdomid =
 let flask_set_target sdomid tdomid =
   domid_access sdomid tdomid Perm.xenstore__set_target
 
+let get_node_value path_db path =
+  let results = Path_db.query path path_db in
+  match results with
+  (* Not in path database, return none value. *)
+  | [] -> (
+    Printf.printf "ZZZ: hooks: get_node_value: NONE\n%!";
+    Path_db.Value_none
+    )
+  (* Use first result as sorted by the path DB query. *)
+  | r :: _ ->
+    match Path_db.(r.result_value) with
+      (* should never happen, raise an exception *)
+      | Path_db.Value_none ->
+        raise (Failure "get_node_value: should not have result of Value_none")
+      | Path_db.Value_str s  -> (
+        Printf.printf "ZZZ: hooks: get_node_value: STR\n%!";
+        Path_db.Value_str s
+        )
+      | Path_db.Value_domid -> (
+        Printf.printf "ZZZ: hooks: get_node_value: DOMID\n%!";
+        Path_db.Value_domid
+        )
+
+let flask_get_value_type path_db path =
+  match get_node_value path_db path with
+  | Path_db.Value_str _ -> Xenstore_server.Xssm.PATH
+  | Path_db.Value_domid -> Xenstore_server.Xssm.DOMID
+  | Path_db.Value_none -> Xenstore_server.Xssm.NONE
+
+let flask_check_domid domid =
+  match OS.Domctl.getdomaininfo domid with
+  | Some _ -> (
+    Printf.printf "XXX: hooks: check_domid: xc_domain_getinfo succeeded: domid = %d\n%!" domid;
+    true
+    )
+  | None -> (
+    Printf.printf "XXX: hooks: check_domid: xc_domain_getinfo failed: domid = %d\n%!" domid;
+    false
+    )

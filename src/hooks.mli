@@ -113,3 +113,9 @@ val flask_set_as_target: domid -> domid -> unit
 
 val flask_set_target: domid -> domid -> unit
 (** Allow a domain to be a target for another domain. *)
+
+val flask_get_value_type: Path_db.t -> path -> Xenstore_server.Xssm.value
+(** Return the value type of a path, return NONE for non-existant entries. *)
+
+val flask_check_domid: domid -> bool
+(** Check if there is a VM running on the system with the given domid. *)
