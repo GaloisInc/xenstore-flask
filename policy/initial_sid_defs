@@ -1,0 +1,38 @@
+#
+# initial_sids --- Labels for initial SIDs.
+#
+# Copyright (C) 2013, Galois, Inc.
+# All Rights Reserved.
+#
+
+# These initial SIDs are all unused in the standalone Xenstore
+# security policy, so set them to an unlabeled context.
+sid kernel system_u:object_r:unlabeled_t
+sid security system_u:object_r:unlabeled_t
+sid unlabeled system_u:object_r:unlabeled_t
+sid fs system_u:object_r:unlabeled_t
+sid file system_u:object_r:unlabeled_t
+sid file_labels system_u:object_r:unlabeled_t
+sid init system_u:object_r:unlabeled_t
+sid any_socket system_u:object_r:unlabeled_t
+sid port system_u:object_r:unlabeled_t
+sid netif system_u:object_r:unlabeled_t
+sid netmsg system_u:object_r:unlabeled_t
+sid node system_u:object_r:unlabeled_t
+sid igmp_packet system_u:object_r:unlabeled_t
+sid icmp_socket system_u:object_r:unlabeled_t
+sid tcp_socket system_u:object_r:unlabeled_t
+sid sysctl_modprobe system_u:object_r:unlabeled_t
+sid sysctl system_u:object_r:unlabeled_t
+sid sysctl_fs system_u:object_r:unlabeled_t
+sid sysctl_kernel system_u:object_r:unlabeled_t
+sid sysctl_net system_u:object_r:unlabeled_t
+sid sysctl_net_unix system_u:object_r:unlabeled_t
+sid sysctl_vm system_u:object_r:unlabeled_t
+sid sysctl_dev system_u:object_r:unlabeled_t
+sid kmod system_u:object_r:unlabeled_t
+sid policy system_u:object_r:unlabeled_t
+sid scmp_packet system_u:object_r:unlabeled_t
+sid devnull system_u:object_r:unlabeled_t
+
+sid xenstore system_u:object_r:xs_root_t

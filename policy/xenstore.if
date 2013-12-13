@@ -1,0 +1,135 @@
+#
+# xenstore.if --- M4 macros for Xenstore policy.
+#
+# Copyright (C) 2013, Galois, Inc.
+# All Rights Reserved.
+#
+
+# Restrict allow rules by source and target type.
+define(`only_allow', `
+  neverallow ~$1 * : $3 $4;
+  neverallow * ~$2 : $3 $4;
+')
+
+# Define a Xenstore path type.
+define(`define_xs_path', `type $1, xs_path;')
+
+# Define a Xenstore node type.  Nodes of this type will be
+# allowed to bind child nodes of the same type.
+define(`define_xs_node', `
+  type $1, xs_node;
+  allow $1 $1 : xenstore { bind };
+')
+
+# xs_domain_node(domain, type)
+#
+# Define a Xenstore node type associated with a domain.  'domain'
+# is the domain's base name (without the "_t" suffix).
+define(`xs_domain_node', `
+  define_xs_node($2)
+  typeattribute $2 xs_$1_type;
+')
+
+# xs_domain_label(domain, parent_label, result_label)
+#
+# Create a labeling rule for a "DOMID" entry in the path
+# database.  'domain' is the domain's base name (without the
+# "_t" suffix) that matches the wildcard in the path database.
+# 'parent_label' is the label of the parent node, and 'result_label'
+# is the resulting label for the child node.
+define(`xs_domain_label', `
+  type_transition $1_t $2 : xenstore $3;
+  allow $2 $3 : xenstore { bind };
+')
+
+define(`xs_path_label', `
+  type_transition $1 $2 : xenstore $3;
+  allow $1 $3 : xenstore { bind };
+')
+
+# xs_domain(domain)
+#
+# Define a domain's base Xenstore policy.  'domain' is the domain's
+# base name (without the "_t" suffix for its type).
+define(`xs_domain', `
+  attribute xs_$1_type;
+
+  # Type and label of "/local/domain/*".
+  xs_domain_node($1, xs_$1_ctl_t)
+  xs_domain_label($1, xs_local_domain_t, xs_$1_ctl_t)
+
+  # Allow the domain read/write/create access to all its nodes.
+  allow $1_t xs_$1_type : xenstore { read write create };
+')
+
+# xs_control_domain(domain, control)
+#
+# Define the control domain for a domain that uses Xenstore.  Both 'domain'
+# and 'control' are the domain's base name (without the "_t" suffix).
+define(`xs_control_domain', `
+  # Allow the control domain all permissions to our nodes.
+  allow $2_t xs_$1_type : xenstore
+    { read write create delete chmod relabelfrom relabelto override };
+
+  # Allow the control domain to introduce us to Xenstore.
+  allow $2_t $1_t : xenstore { introduce };
+')
+
+# xs_console_domain(domain, console_domain)
+#
+# Define the console domain for a domain.  Both 'domain' and
+# 'console_domain' are the domain's base name (without "_t").
+define(`xs_console_domain', `
+  # Define the type for the domains console nodes.
+  xs_domain_node($1, xs_$1_console_t)
+  type_transition xs_$1_ctl_t xs_console_path_t : xenstore xs_$1_console_t;
+
+  # Allow the console domain permission to the domains console nodes.
+  allow $2_t xs_$1_console_t : xenstore { read write create delete chmod };
+
+  # Allow binding console nodes in the domains local tree.
+  allow xs_$1_ctl_t xs_$1_console_t : xenstore bind;
+')
+
+# xs_device_backend(domain, device_type)
+#
+# Define a device backend tree for a domain.  'domain' is the domain's
+# base name (without the "_t" suffix), and 'device_type' is the name
+# of the device in the Xenstore tree (such as "vbd").
+define(`xs_device_backend', `
+  # Type and label of "/local/domain/*/backend/DEV".
+  xs_domain_node($1, xs_$1_$2_backend_t)
+  xs_path_label(xs_$1_ctl_t, xs_$2_backend_path_t, xs_$1_$2_backend_t)
+')
+
+# xs_device(domain, driver_domain, device_type)
+#
+# Use a device from a domain supplying the device backend.  'domain'
+# is the base name of the domain with the device front end,
+# 'driver_domain' is the base name of the domain with the device's
+# backend, and 'device_type" is the name of the device in the Xenstore
+# tree.
+define(`xs_device', `
+  # Type and label of "/local/domain/*/backend/DEV/*".
+  xs_domain_node($2, xs_$3_backend_for_$1_t)
+  xs_domain_label($1, xs_$2_$3_backend_t, xs_$3_backend_for_$1_t)
+
+  # Type and label of "/local/domain/*/device/DEV".
+  xs_domain_node($1, xs_$1_$3_frontend_t)
+  xs_path_label(xs_$1_ctl_t, xs_$3_frontend_path_t, xs_$1_$3_frontend_t)
+
+  # Allow the frontend domain to read backend nodes.
+  allow $1_t xs_$3_backend_for_$1_t : xenstore { read };
+
+  # Allow the backend domain to read frontend nodes.
+  allow $2_t xs_$1_$3_frontend_t : xenstore { read };
+')
+
+# xs_priv_domain(domain)
+#
+# Define a domain as privileged to access any Xenstore node.
+define(`xs_priv_domain', `
+  typeattribute $1_t xs_priv_domain_type;
+')
+
+# vim: set ft=te ts=2 et:
