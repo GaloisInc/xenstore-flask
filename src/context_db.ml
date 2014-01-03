@@ -46,7 +46,7 @@ let split_context s =
   | [u; r; t] -> Some (u, r, t)
   | _         -> None
 
-let _query_context ctx db =
+let query_context ctx db =
   match split_context ctx with
   | Some (u1, r1, t1) ->
     begin
@@ -56,14 +56,4 @@ let _query_context ctx db =
       | _ -> None
     end
   | _ -> None
-
-let query_context ctx db =
-  Printf.printf "query_context: %s\n%!" ctx;
-  match _query_context ctx db with
-  | Some result ->
-    Printf.printf "query_context: result: %s\n%!" result;
-    Some result
-  | None ->
-    Printf.printf "query_context: not found!\n%!";
-    None
 
