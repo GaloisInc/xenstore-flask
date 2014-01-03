@@ -21,6 +21,14 @@ type context = string
 val flask_clear_avc_cache : unit -> unit
 (** Clear the avc cache. *)
 
+(** {2 Path and Context Databases} *)
+
+val set_path_db : Path_db.t -> unit
+(** Set the current path database. *)
+
+val set_context_db : Context_db.t -> unit
+(** Set the current context database. *)
+
 (** {2 Permissive / Enforcing Modes} *)
 
 val flask_getenforce : unit -> bool
@@ -31,15 +39,11 @@ val flask_setenforce : bool -> unit
 
 (** {2 Node Labelling} *)
 
-val new_node_label : Path_db.t -> path -> context -> context
+val new_node_label : path -> context -> context
 (** [new_node_label path parent_context]
 
     Label a newly created node based on the path database
-    and context of the (already existing) parent node.
-    
-    TODO: This interface will probably change to remove the
-    path database argument, since "Xs_flask" should be able
-    to have knowledge of the path database somehow. *)
+    and context of the (already existing) parent node. *)
 
 (** {2 Node Accesses} *)
 
@@ -114,7 +118,7 @@ val flask_set_as_target: domid -> domid -> unit
 val flask_set_target: domid -> domid -> unit
 (** Allow a domain to be a target for another domain. *)
 
-val flask_get_value_type: Path_db.t -> path -> Xenstore_server.Xssm.value
+val flask_get_value_type : path -> Xenstore_server.Xssm.value
 (** Return the value type of a path, return NONE for non-existant entries. *)
 
 val flask_check_domid: domid -> bool

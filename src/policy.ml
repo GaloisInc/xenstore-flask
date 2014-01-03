@@ -15,4 +15,4 @@ let audit_data_to_string d =
   let go s (k, v) = s ^ sprintf " %s=%s" k v in
   String.trim (List.fold_left go "" d)
 
-include Policy_gen
+include Flask_gen

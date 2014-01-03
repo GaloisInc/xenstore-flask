@@ -9,7 +9,8 @@
 
 open Policy
 
-module Sec = Security.AVC(OS.Flask)
+(* Use the built-in Xenstore security server for access control. *)
+module Sec = Security.AVC(Sec_server)
 
 type domid = int
 type path = string
@@ -18,15 +19,13 @@ type context = string
 let flask_clear_avc_cache () =
   Sec.avc_clear_cache ()
 
-(** Default Path Database *)
+(** Path and Context Databases *)
 
-(* This is hard-coded here for now.  Eventually it will probably become
- * a loadable module along with the Xenstore policy.
- *
- * The labels defined here must be defined in the Xen policy, or the
- * nodes will end up labeled incorrectly. *)
-let ctx ty = Path_db.Value_str ("system_u:object_r:" ^ ty)
-let dom    = Path_db.Value_domid
+let g_path_db      = ref Path_db.empty
+let set_path_db db = g_path_db := db
+
+let g_context_db      = ref Context_db.empty
+let set_context_db db = g_context_db := db
 
 (** Node Labelling *)
 
@@ -37,11 +36,16 @@ let rec last xs =
   | x :: [] -> x
   | x :: xs -> last xs
 
-(* Wrapper around "getdomainsid" that returns the predefined
- * unlabeled SID if an error occurs. *)
+(* Look up a domain SID in the hypervisor policy, then translate
+ * that security context to the Xenstore policy via the context DB.
+ * Returns the unlabeled context if any steps fail. *)
 let safe_getdomainsid domid =
   try
-    OS.Flask.getdomainsid domid
+    let xsm_sid = OS.Flask.getdomainsid domid in
+    let xsm_ctx = OS.Flask.sid_to_context xsm_sid in
+    match Context_db.query_context xsm_ctx !g_context_db with
+    | Some xs_ctx -> Sec.context_to_sid xs_ctx
+    | None        -> Policy.InitialSID.unlabeled
   with Failure _ ->
     Policy.InitialSID.unlabeled
 
@@ -51,12 +55,12 @@ let safe_context_to_sid label =
   try
     Sec.context_to_sid label
   with Failure _ ->
-    Policy.InitialSID.xenstore_unlabeled
+    Policy.InitialSID.unlabeled
 
 (* Label a newly created node based on the path database
  * and label of the (already existing) parent node. *)
-let new_node_label path_db path parent_label =
-  let results = Path_db.query path path_db in
+let new_node_label path parent_label =
+  let results = Path_db.query path !g_path_db in
   match results with
   (* Not in path database, use parent's security label. *)
   | [] -> parent_label
@@ -198,42 +202,27 @@ let flask_set_as_target sdomid tdomid =
 let flask_set_target sdomid tdomid =
   domid_access sdomid tdomid Perm.xenstore__set_target
 
-let get_node_value path_db path =
-  let results = Path_db.query path path_db in
+let get_node_value path =
+  let results = Path_db.query path !g_path_db in
   match results with
   (* Not in path database, return none value. *)
-  | [] -> (
-    Printf.printf "ZZZ: hooks: get_node_value: NONE\n%!";
-    Path_db.Value_none
-    )
+  | [] -> Path_db.Value_none
   (* Use first result as sorted by the path DB query. *)
   | r :: _ ->
     match Path_db.(r.result_value) with
       (* should never happen, raise an exception *)
       | Path_db.Value_none ->
         raise (Failure "get_node_value: should not have result of Value_none")
-      | Path_db.Value_str s  -> (
-        Printf.printf "ZZZ: hooks: get_node_value: STR\n%!";
-        Path_db.Value_str s
-        )
-      | Path_db.Value_domid -> (
-        Printf.printf "ZZZ: hooks: get_node_value: DOMID\n%!";
-        Path_db.Value_domid
-        )
+      | Path_db.Value_str s -> Path_db.Value_str s
+      | Path_db.Value_domid -> Path_db.Value_domid
 
-let flask_get_value_type path_db path =
-  match get_node_value path_db path with
+let flask_get_value_type path =
+  match get_node_value path with
   | Path_db.Value_str _ -> Xenstore_server.Xssm.PATH
   | Path_db.Value_domid -> Xenstore_server.Xssm.DOMID
   | Path_db.Value_none -> Xenstore_server.Xssm.NONE
 
 let flask_check_domid domid =
   match OS.Domctl.getdomaininfo domid with
-  | Some _ -> (
-    Printf.printf "XXX: hooks: check_domid: xc_domain_getinfo succeeded: domid = %d\n%!" domid;
-    true
-    )
-  | None -> (
-    Printf.printf "XXX: hooks: check_domid: xc_domain_getinfo failed: domid = %d\n%!" domid;
-    false
-    )
+  | Some _ -> true
+  | None   -> false

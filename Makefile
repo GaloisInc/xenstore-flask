@@ -11,7 +11,7 @@ doc: setup.data build
 test: setup.data build
 	$(SETUP) -test $(TESTFLAGS)
 
-all: 
+all:
 	$(SETUP) -all $(ALLFLAGS)
 
 install: setup.data

@@ -1,9 +1,10 @@
 # OASIS_START
-# DO NOT EDIT (digest: 473d45a574e0e068ccc7eb93947806ec)
+# DO NOT EDIT (digest: dac4970c1a12863ba6a24ca32d0c5709)
 Types
 Path_db
+Context_db
+Sec_server
 Security
 Policy
 Hooks
-Policy_gen
 # OASIS_STOP

@@ -13,9 +13,8 @@ Library xs_flask
   Findlibname:      xenstore-flask
   Pack:             true
   BuildTools:       ocamlbuild
-  Modules:          Types, Path_db, Security, Policy, Hooks
-  InternalModules:  Policy_gen
-  BuildDepends:     str, xenstore.server, mirage
+  Modules:          Types, Path_db, Context_db, Sec_server, Security, Policy, Hooks
+  BuildDepends:     str, xenstore.server, mirage, xenstore-policy
 
 #Executable path_db_test
 #  CompiledObject:   best
