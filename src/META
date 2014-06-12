@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 65dd292cf83ed16bd1805c478856471d)
+# DO NOT EDIT (digest: 1ca9b95f0df025c15ca8e5688ce4911d)
 version = "0.1"
 description = "Flask security module for Xenstore"
-requires = "str xenstore.server mirage xenstore-policy"
+requires = "str xenstore.server mirage-xen xenstore-policy cpio-odc"
 archive(byte) = "xs_flask.cma"
 archive(byte, plugin) = "xs_flask.cma"
 archive(native) = "xs_flask.cmxa"

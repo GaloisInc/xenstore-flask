@@ -14,7 +14,7 @@ Library xs_flask
   Pack:             true
   BuildTools:       ocamlbuild
   Modules:          Types, Path_db, Context_db, Sec_server, Security, Policy, Hooks
-  BuildDepends:     str, xenstore.server, mirage, xenstore-policy
+  BuildDepends:     str, xenstore.server, mirage-xen, xenstore-policy, cpio-odc
 
 #Executable path_db_test
 #  CompiledObject:   best
