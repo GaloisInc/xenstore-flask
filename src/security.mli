@@ -4,6 +4,9 @@
  * Copyright (c) 2013, Galois, Inc.
  * All Rights Reserved.
  *
+ * Released under the BSD3 license.  See the file "LICENSE"
+ * for details.
+ *
  * Written by James Bielman <jamesjb@galois.com>, 30 July 2013
  *)
 

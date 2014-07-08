@@ -3,7 +3,7 @@ Name:        xenstore-flask
 Version:     0.1
 Synopsis:    Flask security module for Xenstore
 Authors:     Galois, Inc.
-License:     PROP
+License:     BSD-3-clause
 Plugins:     META (0.3)
 BuildTools:  ocamlbuild
 
