@@ -1,8 +1,12 @@
 
 # Flask Security Server for Mirage Xenstore
 
-TODO: Write some documentation on how to install and use this.
+This package contains a pluggable security module for the
+Mirage-based Xenstore that implements Flask-style mandatory
+access control using the "libsepol" library.
 
-TODO: Write a blurb about how this could be broken out into a
-general-purpose user-space security server for Mirage kernels.
+The security policy consists of a standard SELinux binary
+policy, augmented with a path database used to label
+Xenstore nodes, and a context database used to translate
+hypervisor security contexts to Xenstore security contexts.
 
